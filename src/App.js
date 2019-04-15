@@ -1,25 +1,48 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import socketIOClient from 'socket.io-client';
+// import logo from './logo.svg';
+// import './App.css';
 
 class App extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      endpoint: 'localhost:4001',
+      color: 'white',
+    }
+  }
+
+  // sending sockets
+  send = () => {
+    const socket = socketIOClient(this.state.endpoint);
+    socket.emit('change color', this.state.color) // change 'red' to this.state.color
+  }
+
+  // adding the function
+  setColor = (color) => {
+    this.setState({ color });
+  }
+
+  componentDidMount = () => {
+    const socket = socketIOClient(this.state.endpoint);
+    setInterval(this.send(), 1000)
+    socket.on('change color', (col) => {
+      document.body.style.backgroundColor = col
+    })
+  }
   render() {
+    // testing for socket connections
+
+    // const socket = socketIOClient(this.state.endpoint);
+
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div style={{ textAlign: 'center' }}>
+        <button onClick={() => this.send() }>Change Color</button>
+
+
+        <button id="blue" onClick={() => this.setColor('blue')}>Blue</button>
+        <button id="red" onClick={() => this.setColor('red')}>Red</button>
       </div>
     );
   }
